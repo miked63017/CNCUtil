@@ -1,0 +1,276 @@
+ def stock_thick
+     @stock_thick
+   end
+   def stock_thick=(aNum)
+     print "(stock thickness ", aNum, ")\n"
+     @stock_thick = aNum
+   end
+   
+    def drill_through_depth
+     return @drill_through_depth
+   end
+   def drill_through_depth=(aNum)
+     @drill_through_depth = drill_through_depth
+   end
+   
+
+   def wheel_diam
+     @wheel_diam
+   end   
+   def wheel_diam=(aNum)     
+     @wheel_diam = aNum
+   end
+   
+   
+ 
+
+   
+   def max_left
+     @max_left
+   end
+   def max_left=(aNum)
+     @max_left = aNum
+   end
+   
+   
+   def lcx
+     @lcx
+   end
+   def lcx=(aNum)
+     @lcx = aNum
+   end
+   
+   
+   def lcx=(aNum)
+     @lcx = aNum
+   end
+   
+   def lcy
+     @lcy
+   end
+   
+   def lcy=(aNum)
+     @lcy = aNum
+   end
+   
+   
+   def curr_depth
+     @curr_depth
+   end
+   
+    
+   def main_wheel_thick
+     @main_wheel_thick
+   end
+   
+   def main_wheel_thick=(aNum)
+     @main_wheel_thick = aNum
+   end
+   
+   
+   def mill
+     @mill
+   end
+
+   
+   
+      
+   def stock_width
+     @stock_width
+   end
+   def stock_width=(aNum)
+     @stock_width = aNum
+   end
+   
+   
+   def remove_surface 
+     @remove_surface
+   end
+   def remove_surface=(aNum)
+     @remove_surface = aNum
+   end
+   
+   
+   def stock_width
+     @stock_width 
+   end
+   def stock_width=(aNum)
+     @stock_width = aNum
+   end
+   
+     
+   def amount_lopside
+     @amount_lopside 
+   end
+   def amount_lopside=(aNum)
+     @amount_lopside = aNum
+   end
+   
+   def wall_thick 
+     @wall_thick
+   end   
+   def wall_thick=(aNum)
+     @wall_thick = aNum
+   end
+   
+   
+   
+   def floor_thick      
+     @floor_thick 
+   end
+   def floor_thick=(aNum)
+     @floor_thick = aNum
+   end
+   
+   
+   def bottom_plate_thick
+     @bottom_plate_thick 
+   end
+   def bottom_plate_thick=(aNum)
+     @bottom_plate_thick = aNum
+   end
+   
+   
+   def top_screw_thick
+     @top_screw_thick 
+   end
+   def top_screw_thick=(aNum)
+     @top_screw_thick = aNum
+   end
+   
+   
+   def air_gap_at_bottom
+     @air_gap_at_bottom 
+   end
+   def air_gap_at_bottom=(aNum)
+     @air_gap_at_bottom = aNum
+   end
+   
+   
+   def bearing_inside_diam
+     @bearing_inside_diam
+   end
+   def bearing_inside_diam=(aNum)
+     @bearing_inside_diam = aNum
+   end
+   
+   
+   def bearing_outside_diam
+     @bearing_outside_diam
+   end
+   def bearing_outside_diam=(aNum)
+     @bearing_outside_diam = aNum
+   end
+   
+   
+   def bearing_thick
+     @bearing_thick
+   end
+   
+   def bearing_thick=(aNum)
+     @bearing_thick = aNum
+   end
+   
+   
+   
+    def shaft_diam
+     @shaft_diam
+   end
+   def shaft_diam=(aNum)
+     @shaft_diam = aNum
+   end
+   
+   
+   def min_wheel_clearance
+     @min_wheel_clearance
+   end
+   def min_wheel_clearance=(aNum)
+     @min_wheel_clearance = aNum
+   end
+   
+   
+   def cut_off_allowance
+     @cut_off_allowance 
+   end
+   def cut_off_allowance=(aNum)
+     @cut_off_allowance = aNum
+   end
+   
+   
+   
+   def mount_bolts_diam
+     @mount_bolts_diam
+   end
+   def mount_bolts_diam=(aNum)
+     @mount_bolts_diam = aNum
+   end
+   
+   def mount_bolt_thread_diam
+     @mount_bolt_thread_diam
+   end
+   def mount_bolt_thread_diam=(aNum)
+     @mount_bolt_thread_diam = aNum
+   end
+   
+   
+   def mount_bolt_length
+     @mount_bolt_length
+   end
+   
+   def mount_bolt_length=(aNum)
+     @mount_bolt_length = aNum
+   end
+   
+   
+   def mount_bolt_head_thick
+     @mount_bolt_head_thick
+   end
+   def mount_bolt_head_thick=(aNum)
+     @mount_bolt_head_thick = aNum
+   end
+   
+   
+   def mount_bolt_head_diam
+     @mount_bolt_head_diam
+   end
+   
+   
+   
+   #   #   #   #   #   #   #   #   #
+   def mount_bolt_head_diam=(aNum)
+   #   #   #   #   #   #   #   #   #
+     @mount_bolt_head_diam = aNum
+   end
+   
+   #   #   #   #   #   #   #   #   #
+   def bolt_space_from_edge
+   #   #   #   #   #   #   #   #   #
+     @bolt_space_from_edge
+   end
+   
+   #   #   #   #   #   #   #   #   #
+   def bolt_space_from_edge=(aNum)
+   #   #   #   #   #   #   #   #   #
+     @bolt_space_from_edge = aNum
+   end
+   
+   #   #   #   #   #   #   #   #   #
+   def entrance_diam
+   #   #   #   #   #   #   #   #   #
+     @entrance_diam
+   end
+   
+   #   #   #   #   #   #   #   #   #
+   def entrance_diam=(aNum)
+   #   #   #   #   #   #   #   #   #
+     @entrance_diam = aNum
+   end
+   
+   
+   
+   
+   
+   def curr_depth=(aNum)
+     @curr_depth = aNum
+   end
+   

@@ -1,0 +1,501 @@
+   # - - - - - - - - - - - - - - - -     
+    def pBeg_min_radius(poi=nil)
+    # - - - - - - - - - - - - - - - -     
+      if (poi != nil)
+        @beg_min_radius = poi
+      end #if
+      return @beg_min_radius
+    end  # meth
+       
+
+
+    # - - - - - - - - - - - - - - - -     
+    def pBeg_max_radius(poi=nil)
+    # - - - - - - - - - - - - - - - -     
+      if (poi != nil)
+        @beg_max_radius = poi
+      end #if
+      return @beg_max_radius
+    end  # meth
+       
+
+    # - - - - - - - - - - - - - - - -     
+    def pBeg_angle(poi=nil)
+    # - - - - - - - - - - - - - - - -     
+      if (poi != nil)
+        @beg_angle = poi
+      end #if
+      return @beg_angle
+    end  # meth
+       
+
+    # - - - - - - - - - - - - - - - -     
+    def pEnd_min_radius(poi=nil)
+    # - - - - - - - - - - - - - - - -     
+      if (poi != nil)
+        @end_min_radius = poi
+      end #if
+      return @end_min_radius
+    end  # meth
+       
+
+    # - - - - - - - - - - - - - - - -     
+    def pEnd_max_radius(poi=nil)
+    # - - - - - - - - - - - - - - - -     
+      if (poi != nil)
+        @end_max_radius = poi
+      end #if
+      return @end_max_radius
+    end  # meth
+       
+
+    # - - - - - - - - - - - - - - - -     
+    def pEnd_angle(poi=nil)
+    # - - - - - - - - - - - - - - - -     
+      if (poi != nil)
+        @end_angle = poi
+      end #if
+      return @end_angle
+    end  # meth
+       
+
+    # - - - - - - - - - - - - - - - -     
+    def pDegree_inc(poi=nil)
+    # - - - - - - - - - - - - - - - -     
+      if (poi != nil)
+        @degree_inc = poi
+      end #if
+      return @degree_inc
+    end  # meth
+
+    
+    # PRIMITIVE: mill a arc segment from pBeg_angle to 
+# ending angle where the arc pRadius
+# either increases for decreases as it
+# progresses.  Calculates arc ppoints on pDegree_inc
+# and will mill to specified pDepth
+# 
+# Will not properly handle multiple passes.
+# although this is done automatically by 
+# the CNCShapeArc.do_mill method.
+#
+# OBSOLETE: Consider using changing_radius_curve()
+#  instead.
+#
+# It is also supplied by changing_radius_curve()
+# which is a latter and smarter version of this
+# method which eliminates the need to plung the
+# bit straight down for the beginning of each pass.
+#
+# - - - - - - - - - - - - - - - - - - - -
+def  changing_arc(mill, pCirc_x,pCirc_y, pBeg_radius, pBeg_angle, pEnd_radius, pEnd_angle, 
+pDepth,  pDegree_inc=nil)
+# - - - - - - - - - - - - - - - - - - - -
+  #print "(changing_arc  cir_x=", pCirc_x,  " pCirc_y=", pCirc_y, " pBeg_radius=", pBeg_radius, " pBeg_angle=", pBeg_angle, "  pEnd_radius=", pEnd_radius, " pEnd_angle=", pEnd_angle, " pDepth=", pDepth,  "pDegree_inc =", pDegree_inc, ")\n"
+
+  if (pDepth > 0)
+    pDepth = 0 - pDepth
+  end
+  
+  if (pDegree_inc == nil)
+    pDegree_inc = 2.0
+  end #if
+
+  
+  pDegree_inc = pDegree_inc.abs
+  pRadius_change = (pEnd_radius - pBeg_radius)
+     # pRadius_change may be negative
+     # in which case it is spiraling in
+     # otherwise it is spiraling out
+  sweep = (pEnd_angle - pBeg_angle).abs
+  no_steps = sweep / pDegree_inc
+  pRadius_change_per_deg_inc  = pRadius_change / no_steps
+  
+  
+  curr_deg    = pBeg_angle
+  curr_pRadius= pBeg_radius
+  pt_begin = calc_point_from_angle(pCirc_x,pCirc_y, curr_deg, curr_pRadius)
+
+
+  # if the current CX is not verry close to the
+  # starting of this arc then we need to retract
+  # prior to milling. 
+  if ((mill.cx - pt_begin.x).abs > mill.bit_diam) ||
+  ((mill.cy - pt_begin.y).abs > mill.bit_diam)
+    #print "(changing arc auto retract)\n"
+    mill.retract()
+  end #else
+  mill.move_fast(pt_begin.x, pt_begin.y)
+  
+  
+    curr_deg    = pBeg_angle
+    curr_pRadius= pBeg_radius    
+    cnt = 0        
+    while (true)
+        cnt += 1
+        #print "(changing_arc  curr_deg=", curr_deg, "  curr_pRadius=", curr_pRadius, " pCirc_x = ", pCirc_x,  "  pCirc_y=", pCirc_y, ")\n"
+        cp = calc_point_from_angle(pCirc_x,pCirc_y, curr_deg, curr_pRadius)
+        #print "(changing_arc cp.x=", cp.x, " cp.y=", cp.y, ")\n"
+        if (cnt == 1)
+          # plung after the first move
+          # just in case we needed to 
+          # be moved before we finish
+          mill.move_fast(cp.x, cp.y)
+          if (mill.cz > 0)
+            mill.move_fast(cp.x,cp.y)
+            mill.move_fast(cp.x,cp.y,0)
+          end
+          mill.plung(pDepth)
+        else        
+          mill.move(cp.x, cp.y)
+        end #if
+        
+        if (curr_deg == pEnd_angle)
+           break   # finished milling final
+                   # part of segment so done          
+        end #if
+  
+        # update current degree. This additional
+        # logic allows this method to mill both
+        # an increasing arc and a decreasing arc
+        if pBeg_angle < pEnd_angle
+           # billin forward from lower degrees
+           # towards higher ones
+           curr_deg += pDegree_inc
+           if curr_deg > pEnd_angle
+              curr_deg = pEnd_angle
+           end #if
+        else # gpoing in reverse
+           curr_deg -= pDegree_inc
+           if curr_deg < pEnd_angle
+             curr_deg = pEnd_angle
+           end
+        end #else
+    
+        curr_pRadius += pRadius_change_per_deg_inc
+           # pRadius change_per_deg_inc may be negative
+           # if pEnd_radius is less than pBeg_radius and if
+           # so will spiral in.  Otherwise will spiral out.  
+     end #while
+     
+end   # Meth
+
+
+
+
+
+
+  # *****************************************
+  class CNCShapeArc
+  # *****************************************
+    include  CNCShapeBase
+    extend  CNCShapeBase
+    
+    attr_accessor :beg_beg_radius, :end_radius, :beg_angle, :end_angle, :degree_inc, :depth, :needs_check_parms
+    
+    #attr_writer :duration
+    #attr_reader :name, :artist, :duration
+
+    # - - - - - - - - - - - - - - - - - - 
+    def initialize(mill,  x,  y,  
+        pBeg_radius,   pBeg_end_radius, pBeg_angle=0,
+        pEnd_angle=360,
+        pDepth=nil,  pDegree_inc=nil
+        )
+    # - - - - - - - - - - - - - - - - - -
+    
+      base_init(mill,x,y,nil,pDepth)
+      @beg_radius      = pBeg_radius
+      @end_radius      = pEnd_radius
+      @beg_angle       = pBeg_angle
+      @end_angle       = pEnd_angle   
+      @degree_inc      = pDegree_inc
+      @depth           = pDepth
+      @needs_check_parms = true
+
+      #print "(CNCShapeArc init pDepth=", pDepth,  " @pDepth=", @pDepth, ")\n"
+      #check_parms
+      return self
+    end #meth
+
+  # check_parms needs to be called 
+  # whenever the min_max pRadius have
+  # been changed.  Normally this is
+  # only during reset or initialization
+  # could not figure out how to get
+  # the constructor to call it or would
+  # have done automatically.  As it is
+  # the constructor sets a flag and
+  # any method that may need to have
+  # bit_adjusted pRadius dimensions
+  # should call check_parms.
+  # - - - - - - - - - - - - - - - - - -
+  def  check_parms
+  # - - - - - - - - - - - - - - - - - -
+    if (@needs_check_parms == false)
+      return false # didn't need to run
+    else
+      @needs_check_parms = false
+      # reset flag so we don't keep
+      # adjusting the parms which would
+      # keep deducting the pRadius from
+      # them.
+    end #if
+
+    # Swap if needed to make sure min
+    # really is smallest on beginning
+    if (@beg_min_radius > @beg_max_radius)
+      tt = @beg_min_radius
+      @beg_min_radius = @beg_max_radius
+      @beg_max_radius = tt
+    end #if
+
+    # swap if needed to make sure
+    # min really is smallest on 
+    # beginning
+    if (@end_min_radius > @end_max_radius)
+      tt = @end_min_radius
+      @end_min_radius = @end_max_radius
+      @end_max_radius = tt
+    end # if
+
+    
+    #print "(check_parms @beg_min_radius=", pBeg_min_radius, " bit_radius=", bit_radius,")\n"
+
+    # Adjust for Bit pRadius
+    @beg_min_radius   += bit_radius
+    @end_min_radius   += bit_radius
+    @beg_max_radius  -= bit_radius
+    @end_max_radius  -= bit_radius
+    return self
+  end #meth
+
+ 
+
+  # does the actual milling operation
+  # and properly handels multiple passes
+  # when milling deep pockets.
+  # - - - - - - - - - - - - - - - - - - - -
+  def  do_mill()
+  # - - - - - - - - - - - - - - - - - - - -
+    #print "(mill arc segment pocket pBeg_angle=", pBeg_angle,  "  pEnd_angle=",  pEnd_angle,   " pDepth = ", pDepth, " @pDepth=", @pDepth, ")\n"
+    check_parms()
+    bit_radius_half = bit_radius / 2
+    beg_mid_radius = (beg_min_radius + beg_max_radius) / 2.0
+    end_mid_radius = (end_min_radius + end_max_radius) / 2.0
+    cut_inc = mill.cut_inc
+
+    curr_depth = beg_depth
+    if (curr_depth < 0)
+      curr_depth = 0
+    end #if
+    
+    lbeg_min_radius = beg_min_radius + mill.bit_radius
+    lbeg_max_radius = beg_max_radius + mill.bit_radius
+    
+    if (mill.cz < beg_depth)
+      mill.retract(beg_depth)
+    end #if
+    
+    #mill.retract()
+    while (true) # depth    
+    #  print "(mill arc pocket curr_depth=", curr_depth,  " depth=", depth, ")\n"  
+      cibr = beg_mid_radius - mill.cut_inc
+      cier = end_mid_radius - mill.cut_inc
+      cmbr = beg_mid_radius + mill.cut_inc
+      cmer = end_mid_radius + mill.cut_inc      
+      while(true) # radius
+         next_depth = curr_depth - (mill.cut_depth_inc)
+         if (next_depth < depth)
+           next_depth = depth
+           degree_per_step = 7.0           
+         else
+          degree_per_step = 1.0
+         end
+         
+         
+         if (cibr < beg_min_radius)
+           cibr = beg_min_radius
+         end #if
+  
+         if (cier < end_min_radius)
+           cier = end_min_radius
+         end # if
+  
+         if (cmbr > beg_max_radius)
+           cmbr = beg_max_radius
+         end
+  
+         if (cmer > end_max_radius)
+           cmer =  end_max_radius
+         end #if
+  
+         #cp = calc_point_from_angle(pcx,pcy, pBeg_angle, cibr)  
+         #mill.move(cp.x, cp.y)
+         #mill.plung(pDepth)
+         
+         
+     
+         changing_radius_curve(mill, 
+           pcx = x,
+           pcy = y,
+           pBeg_radius = cibr,
+           pBeg_angle  = beg_angle,  
+           pBeg_z      = curr_depth,  
+           pEnd_radius = cier, 
+           pEnd_angle  = end_angle,
+           pEnd_z      = next_depth,  
+           pDegrees_per_step=degree_per_step, 
+           pSkip_z_LT=nil, 
+           pSkip_z_GT=nil,
+           pAuto_speed_adjust= false)
+         
+         #changing_radius_curve(mill, 
+         #  pcx = x,
+         #  pcy = y,
+         #  pBeg_radius = cier,
+         #  pBeg_angle  = end_angle ,  
+         #  pBeg_z      = next_depth,  
+         #  pEnd_radius = cibr, 
+         #  pEnd_angle  = beg_angle,
+         #  pEnd_z      = next_depth,  
+         #  pDegrees_per_step=degree_per_step, 
+         #  pSkip_z_LT=nil, 
+         #  pSkip_z_GT=nil,
+         #  pAuto_speed_adjust= false)  
+  
+           
+         #changing_radius_curve(mill, 
+         #  pcx = x,
+         #  pcy = y,
+         #  pBeg_radius = cmbr,
+         #  pBeg_angle  = beg_angle,  
+         #  pBeg_z      = curr_depth,  
+         #  pEnd_radius = cmer, 
+         #  pEnd_angle  = end_angle,
+         #  pEnd_z      = next_depth,  
+         #  pDegrees_per_step=degree_per_step, 
+         #  pSkip_z_LT=nil, 
+         #  pSkip_z_GT=nil,
+         #  pAuto_speed_adjust= false)
+         #mill.retract(curr_depth)
+         changing_radius_curve(mill, 
+           pcx = x,
+           pcy = y,
+           pBeg_radius = cmer,
+           pBeg_angle  = end_angle ,  
+           pBeg_z      = next_depth,  
+           pEnd_radius = cmbr, 
+           pEnd_angle  = beg_angle,
+           pEnd_z      = next_depth,  
+           pDegrees_per_step=degree_per_step, 
+           pSkip_z_LT=nil, 
+           pSkip_z_GT=nil,
+           pAuto_speed_adjust= false)  
+           
+         #changing_arc(mill, x,y,cibr, beg_angle, cier, end_angle, curr_depth, degree_inc)  # mill increasing
+         #mill.retract()
+         #changing_arc(mill, x,y,cmer, end_angle, cmbr, beg_angle, curr_depth, degree_inc)
+         #mill.retract()  # mill decreasing
+  
+         if ((cibr <= beg_min_radius) &&
+           (cier <=  end_min_radius) &&
+           (cmbr >= beg_max_radius) &&
+           (cmer >= end_max_radius))
+             break
+         end 
+  
+         cibr -= cut_inc
+         cier -= cut_inc
+         cmbr += cut_inc
+         cmer += cut_inc
+       end  #while radius
+       
+       if (next_depth == depth)
+         break
+       else
+          curr_depth -= mill.cut_depth_inc
+          if (curr_depth < depth)
+            curr_depth = depth
+          end
+       end #else
+        
+     end #while depth
+  
+
+   end #meth
+
+
+
+
+
+
+
+  # First pyiu define an arc segment to mill to describe the
+  # first arc segment pyiu desire and then pyiu call this function
+  # rather than  do_mill which will mill an array of these objects
+  # where each one moves pDegree_inc further around the circle.
+  # If pDegree_between is equal to 0 then it will be set to 1/2 
+  # the sweep angle of the current object.  If the
+  # pNum_elem is 0 then the the system will calculate it a the 
+  # number that will fit in a 360 degree circle with the current
+  # sweep (pEnd_angle - pBeg_angle) + a 1/2 sweep angle between
+  # each item.
+  # - - - - - - - - - - - - - - - - - - - -
+  def circ_array(pNum_elem=nil, pDegree_between=nil)
+  # - - - - - - - - - - - - - - - - - - - -
+     curr_beg_angle   = @beg_angle
+     curr_end_angle   = @end_angle
+     sweep_angle      = @end_angle -  @beg_angle
+
+     if (pDegree_between == nil)
+       pDegree_between = sweep_angle / 2.0
+       pDegree_between_specified = false
+     else
+       pDegree_between = 0.0 + pDegree_between
+       pDegree_between_specified = true
+     end #if
+     
+
+     # Determine the number of elements we
+     # can have
+     if (pNum_elem == nil) || (pNum_elem == 0)
+       degree_inc = sweep_angle + pDegree_between
+       pNum_elem  = Integer(360.0 / pDegree_inc)
+     elsif (pNum_elem * sweep_angle) > 360
+       max_ele = Integer(360 /sweep_angle)
+       degree_inc = sweep_angle + pDegree_between
+     end #if
+
+
+     #pDegree_inc = 360.0   
+     #Adjust space between to get even spacing
+     #if (pDegree_between_specified == false)
+     #  total_sweep = (sweep_angle * pNum_elem)
+     #  extra_sweep = 360 - total_sweep
+     #  pDegree_between = extra_sweep / (pNum_elem - 1)
+     #  print "(recalced pDegree_between=", degree_betwee, ")\n"
+     #end #if
+
+     if (degree_between_specified == true)
+       degree_inc = sweep_angle + pDegree_between
+     else
+       degree_inc = 360 / pNum_elem
+     end #if
+
+     # illustrate an easy way to get a
+     # repeating array of arc pockets
+     for ele_cnt in (1..pNum_elem) 
+        @beg_angle = curr_beg_angle 
+        @end_angle = beg_angle + sweep_angle
+        do_mill()
+        mill.retract()
+        curr_beg_angle += degree_inc
+        if (curr_beg_angle > 360)
+          curr_beg_angle = curr_beg_angle % 360
+        end #for
+     end #for
+  end #meth
+
+end #class
+

@@ -1,0 +1,50 @@
+The CNCUtil library, associated design and documentation
+was written predominantly in Ruby by Joseph Ellsworth otherwise known
+as author to provide a scriptable mechanism for the generation of GCODE 
+to drive CNC mills during 2005 and 2006 (C) 2006 Joseph Ellsworth
+
+Author hopes that you will find the library of benefit and that if you 
+need changes or enhancements that you will consider engaging Author 
+consulting services to make those changes.   sales@Author.com 800-658-8745
+If you would like to receive notifications of new releases then 
+please send a request to joe@Author.com
+
+Author ultimately reserves all rights to this library however we 
+grant a non exclusive perpetual right to use, modify and re-distribute the
+source code and any related executable for any purpose.   You may 
+use this library as a component of your own application without owing
+Author any payment.  Author specifically prohibits any use of the library that
+may result in an implied warranty or guarantee on behalf of Author.   
+
+We strongly discourage the use of the library in any situation where a
+malfunction could cause risk of injury, death or loss of property.  CNC
+Machines are power machines with movement in multiple axis.  It is 
+the responsibility of the end user to verify the correct behavior of 
+the GCODE prior to using it with real machines.
+
+This original license must remain in any redistributed versions
+of products that contain any part of the library.   The intent is that
+this license only covers those parts of the library contained in the
+original download and that any part added by you or other parties will
+be covered by an separate  license.
+
+Since Author is providing this as free software it is provided without
+any warranty of purpose,  suitability,  correctness  or otherwise.  If 
+you choose to use this library you do so at your own risk and Author 
+does not provide any indemnification of any sort.
+
+Author reserves the rights to change the license terms at any point in 
+the future however prior versions will still be usable under the terms
+contained in the license.text file they where downloaded with.
+
+If for any reason the limitation of liabilit for any reason for any user then 
+the original grant of license is auy and no warranty clause 
+above is proven to be unenforceabletomatically revoked for all 
+users.
+
+
+         Thanks,  
+		  Author Ellsworth
+	      CTO of a2wh.COM LLC
+		  435-657-2280 main
+		  info@cncutil.com

@@ -1,0 +1,134 @@
+# CNCShapeTrench
+# 
+#  Allow a circular trench to be cut on the horizontal plane.
+#
+#
+include Math
+
+ # mill half pipe indention on X axis this is commonly used
+ # to mill pipe entrance and exits
+ # Maximum depth will be 1/2 specified diam
+
+#  This area is formed by starting a circle and working around it in the Z Axis
+#  To form  a circular trench which has the diameter specified.  The length
+#   of the trench is on the Y axis while the curve is across the X axis.   The
+#   For each degree caculated the system mills along the Y axis 
+#
+#   TODO:  Calculate the maximum depth of change based on cut depth increment
+#    and if it is less than the depth of change due to degree increment then adjust
+#    degree increment to reflect the lower values.
+#
+#   TODO:  Make an option that will rough out with much greater cuts than normal
+#     but make the cut depth 1/10th more shallow than cut depth increment.  Then when
+#     finished roughing out come back over it in the oposite directon using a depth first 
+#     calculation moving from side to side.   This will provide a very nice finish and the finish
+#     cuts can be done with 3/4 of a bit width so they will not take all that long.    
+#
+#    TODO:  Allow to be specfied on the X or Y axis rather than always trenching on the 
+#    Y axis
+#
+#    TODO:  Allow the trench to be placed on tanget to any angle on the X Y plane so the
+#    trench could be diagnal across the surface.
+#
+#
+ # - - - - - - - - - - - - - - - - - -
+ def mill_circ_trench(mill, x,beg_y, end_y,  diam, beg_depth=@cz,  adjust_for_bit_radius=false, degree_inc=2)
+ # - - - - - - - - - - - - - - - - - -
+     #print "mill circle x=", x, " y=", y, " diam=", diam, " depth=", depth, ")\n"
+    if (diam < (mill.bit_diam / 2.0))
+       print "(Warning mill_circ_trench produces marginal results when bit is more than 1/2 size of circle)\n"
+       print "(half pipe diam=", diam, "bit diam = ", mill.bit_diam, ")\n"
+    end #if
+    
+    print "(mill_circ_trench diam= ", diam, " bit_diam=", mill.curr_bit.diam, "  adjust_for_bit_radius=", adjust_for_bit_radius, ")\n"
+      
+    curr_degree = 90
+    end_degree = 180
+    radius  =  diam / 2.0
+
+    # Move the head to a good starting 
+    # point. 
+    mill.retract()
+    mill.move_fast(x + radius, beg_y)
+    mill.retract(0)
+    while (curr_degree < end_degree)
+      cp = calc_point_from_angle(0, beg_depth, curr_degree, radius)
+      # Normally point calc works by calculating X and Y coorinates around
+      # a circle.   In this instances we will use the Y calculated as movement
+      # on the Z plane instead.
+            cp.x = cp.x.abs
+      if (cp.x >=  mill.bit_radius)
+           # Then not just wasting movement
+           # in the center.
+          if (adjust_for_bit_radius == true)	
+	    cp.x = cp.x - mill.bit_radius
+          end	
+  	  # not adjust for bit radius	  
+ 	  tx = x + cp.x
+	  new_z =beg_depth - cp.y.abs
+	  mill.move(x + cp.x, beg_y)
+	  mill.plung(new_z)
+          mill.move(x + cp.x, beg_y, new_z)
+          mill.move(x + cp.x, end_y, new_z)
+          mill.move(x -  cp.x, end_y, new_z)
+	  mill.move(x -  cp.x,  beg_y,new_z)
+	  mill.move(x + cp.x, beg_y, new_z)
+     end # if
+      curr_degree = curr_degree + degree_inc
+    end # while
+    
+    mill.retract()
+end # method
+
+
+
+ # mill half pipe indention on X axis this is commonly used
+ # to mill pipe entrance and exits
+ # Maximum depth will be 1/2 specified diam
+
+#  This area is formed by starting a circle and working around it in the Z Axis
+#   To form  a 1 inch outlet area.   We have a string function which allows us
+#   to calculate points on a curve even though we do not have a curve in the Z
+#   Axis available in standard G code.    Once we work around the curve once
+#   we can then move the bit forward by 3/4 diam and do it again
+ # - - - - - - - - - - - - - - - - - -
+ def mill_z_circ(mill, x,y, diam, beg_depth=@cz,  adjust_for_bit_radius=false, beg_degree=90, end_degree=180)
+ # - - - - - - - - - - - - - - - - - -
+     #print "mill circle x=", x, " y=", y, " diam=", diam, " depth=", depth, ")\n"
+    if (diam < (mill.bit_diam / 2.0))
+       print "(Warning half pipe produces marginal results when bit is more than 1/2 size of circle)\n"
+       print "(half pipe diam=", diam, "bit diam = ", mill.bit_diam, ")\n"
+    end #if
+    
+    print "(mill_z_circ diam= ", diam, " bit_diam=", mill.curr_bit.diam, "  adjust_for_bit_radius=", adjust_for_bit_radius, ")\n"
+      
+    degree_inc  = 3
+    curr_degree = beg_degree
+    radius  =  diam / 2.0
+
+    # Move the head to a good starting 
+    # point. 
+    mill.retract()
+    mill.move_fast(x + radius, y)
+    mill.retract(0)
+    mill.set_speed(mill.speed / 15.0)
+
+    while (curr_degree < end_degree)
+      cp = calc_point_from_angle(0, beg_depth, curr_degree, radius)
+      cp.x = cp.x.abs
+      if (cp.x >=  mill.bit_radius)
+           # Then not just wasting movement
+           # in the center.
+          if (adjust_for_bit_radius == true)	
+	    cp.x = cp.x - mill.bit_radius
+          end	
+  	  # not adjust for bit radius	  
+ 	  tx = x + cp.x
+          mill.move(x + cp.x, y,  cp.y)
+	  mill.move(x - cp.x, y,  cp.y)
+     end # if
+     curr_degree = curr_degree + degree_inc
+    end # while
+    
+    mill.retract()
+end # method
